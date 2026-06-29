@@ -6,7 +6,7 @@ import ReportWriter from './components/ReportWriter';
 import ReportPrintView from './components/ReportPrintView';
 import AdminPanel from './components/AdminPanel';
 
-const DEFAULT_DRIVE_UPLOAD_URL = '';
+const DEFAULT_DRIVE_UPLOAD_URL = 'https://script.google.com/macros/s/AKfycbyG1Ke74i4tTeNJGeZj_qerXZJdUPSOFbgePv6PPM8n9jeShEuPQPl1aAkv6fZ-LtS5/exec';
 
 // Default standard school curriculum experiment steps data
 const defaultStepsData = [
