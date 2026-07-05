@@ -1,4 +1,5 @@
 import React from 'react';
+import IonMovementDrawing from './IonMovementDrawing';
 
 export default function ReportWriter({
   studentInfo,
@@ -134,6 +135,14 @@ export default function ReportWriter({
               value={reportAnswers.observationDetail}
               onChange={(e) => handleAnswerChange('observationDetail', e.target.value)}
               style={{ minHeight: '80px' }}
+            />
+          </div>
+
+          <div className="form-group drawing-form-group">
+            <label className="form-label">이온의 이동 결과 그림으로 표현하기</label>
+            <IonMovementDrawing
+              value={reportAnswers.ionDrawing}
+              onChange={(imageData) => handleAnswerChange('ionDrawing', imageData)}
             />
           </div>
         </div>

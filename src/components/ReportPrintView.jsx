@@ -1,4 +1,5 @@
 import React from 'react';
+import { ION_DRAWING_BACKGROUND_SRC } from './IonMovementDrawing';
 
 export default function ReportPrintView({
   studentInfo,
@@ -11,6 +12,10 @@ export default function ReportPrintView({
     day: 'numeric'
   });
 
+  const blueMove = reportAnswers.blueElectrode || '미기록';
+  const purpleMove = reportAnswers.purpleElectrode || '미기록';
+  const drawingSrc = reportAnswers.ionDrawing || ION_DRAWING_BACKGROUND_SRC;
+
   return (
     <div id="report-print-container">
       <div className="print-header">
@@ -20,7 +25,6 @@ export default function ReportPrintView({
         </h2>
       </div>
 
-      {/* Student Metadata Table */}
       <table className="print-table">
         <thead>
           <tr>
@@ -38,15 +42,13 @@ export default function ReportPrintView({
         </thead>
       </table>
 
-      {/* 1. 실험 목적 */}
       <div className="print-section">
         <h2>1. 실험 목적</h2>
         <div className="print-content-box" style={{ minHeight: 'auto' }}>
-          수용액 속의 이온은 전하를 띠고 있음을 알고, 전압을 걸어주었을 때 전하와 반대 부호의 전극으로 이동함을 가상 실험 및 체크리스트 가이드를 통해 관찰 및 증명한다.
+          수용액 속의 이온은 전하를 띠고 있음을 알고, 전압을 걸어주었을 때 전하와 반대 부호의 전극으로 이동함을 가상 실험과 체크리스트 가이드를 통해 관찰 및 증명한다.
         </div>
       </div>
 
-      {/* 2. 실험 가설 */}
       <div className="print-section">
         <h2>2. 실험 가설</h2>
         <div className="print-content-box">
@@ -54,7 +56,6 @@ export default function ReportPrintView({
         </div>
       </div>
 
-      {/* 3. 실험 결과 및 관찰 기록 */}
       <div className="print-section">
         <h2>3. 실험 결과 및 관찰</h2>
         <table className="print-table" style={{ marginTop: '10px' }}>
@@ -71,18 +72,18 @@ export default function ReportPrintView({
           <tbody>
             <tr>
               <td>양이온</td>
-              <td>황산 구리 수용액 (CuSO₄)</td>
+              <td>황산 구리 수용액 (CuSO4)</td>
               <td>파란색</td>
-              <td>구리 이온 (Cu²⁺)</td>
-              <td>{reportAnswers.blueElectrode ? (reportAnswers.blueElectrode.includes('극') || reportAnswers.blueElectrode === '이동 안 함' ? reportAnswers.blueElectrode : `${reportAnswers.blueElectrode}극`) : '미기재'}</td>
+              <td>구리 이온 (Cu2+)</td>
+              <td>{blueMove}</td>
               <td>{reportAnswers.blueElectrode === '(-)' ? '양(+)전하' : '미확인'}</td>
             </tr>
             <tr>
               <td>음이온</td>
-              <td>과망가니즈산 칼륨 수용액 (KMnO₄)</td>
+              <td>과망가니즈산 칼륨 수용액 (KMnO4)</td>
               <td>보라색</td>
-              <td>과망가니즈산 이온 (MnO₄⁻)</td>
-              <td>{reportAnswers.purpleElectrode ? (reportAnswers.purpleElectrode.includes('극') || reportAnswers.purpleElectrode === '이동 안 함' ? reportAnswers.purpleElectrode : `${reportAnswers.purpleElectrode}극`) : '미기재'}</td>
+              <td>과망가니즈산 이온 (MnO4-)</td>
+              <td>{purpleMove}</td>
               <td>{reportAnswers.purpleElectrode === '(+)' ? '음(-)전하' : '미확인'}</td>
             </tr>
           </tbody>
@@ -94,12 +95,18 @@ export default function ReportPrintView({
         <div className="print-content-box" style={{ minHeight: '60px' }}>
           {reportAnswers.observationDetail || '관찰 내용이 작성되지 않았습니다.'}
         </div>
+
+        <p style={{ fontSize: '9pt', fontWeight: 'bold', marginTop: '12px', marginBottom: '5px' }}>
+          [이온의 이동 결과 그림]
+        </p>
+        <div className="print-drawing-box">
+          <img src={drawingSrc} alt="이온의 이동 결과 그림" />
+        </div>
       </div>
 
-      {/* 4. 정리 및 토의 */}
       <div className="print-section" style={{ pageBreakBefore: 'always', paddingTop: '20px' }}>
         <h2>4. 정리 및 토의 (추론 문항)</h2>
-        
+
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '10px' }}>
           <div>
             <p style={{ fontSize: '10pt', fontWeight: 'bold', marginBottom: '4px' }}>
@@ -121,7 +128,7 @@ export default function ReportPrintView({
 
           <div>
             <p style={{ fontSize: '10pt', fontWeight: 'bold', marginBottom: '4px' }}>
-              Q3. 거름종이에 질산 칼륨(KNO₃) 수용액을 적셔주는 까닭은 무엇인가?
+              Q3. 거름종이에 질산 칼륨(KNO3) 수용액을 적셔주는 까닭은 무엇인가?
             </p>
             <div className="print-content-box" style={{ minHeight: '50px' }}>
               {reportAnswers.electrolyte || '답안이 작성되지 않았습니다.'}
@@ -130,7 +137,6 @@ export default function ReportPrintView({
         </div>
       </div>
 
-      {/* 5. 실험 결론 */}
       <div className="print-section">
         <h2>5. 실험 결론</h2>
         <div className="print-content-box" style={{ minHeight: '60px' }}>
@@ -138,8 +144,7 @@ export default function ReportPrintView({
         </div>
       </div>
 
-      {/* 6. 자기 평가표 & 교사 확인란 */}
-      <div className="print-section" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '20px', alignItems: 'stretch', marginTop: '20px' }}>
+      <div className="print-section print-final-grid">
         <div>
           <h2 style={{ fontSize: '11pt', borderBottom: '1px solid #000', paddingBottom: '3px', marginBottom: '8px' }}>
             6. 자기 평가표
@@ -157,7 +162,7 @@ export default function ReportPrintView({
                 <td>{selfEvaluation.attitude || '미평가'}</td>
               </tr>
               <tr>
-                <td>안전사고에 유의하고 기구를 바르게 조립 및 관찰했는가? (기능)</td>
+                <td>안전 수칙에 유의하고 기구와 시약을 바르게 조립 및 관찰했는가? (기능)</td>
                 <td>{selfEvaluation.skill || '미평가'}</td>
               </tr>
               <tr>

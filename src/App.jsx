@@ -67,7 +67,8 @@ const defaultReportAnswers = {
   copperExplanation: '',
   permanganateExplanation: '',
   electrolyte: '',
-  conclusion: ''
+  conclusion: '',
+  ionDrawing: ''
 };
 
 const defaultProgress = (studentId = '') => ({
@@ -413,7 +414,32 @@ function App() {
   };
 
   const triggerPrint = () => {
-    window.print();
+    const source = document.getElementById('report-print-container');
+    if (!source) {
+      window.print();
+      return;
+    }
+
+    const printNode = document.createElement('div');
+    printNode.id = 'report-print-clone';
+    printNode.className = 'print-clone-container';
+    printNode.innerHTML = source.innerHTML;
+    document.body.appendChild(printNode);
+    document.body.classList.add('is-printing-report');
+
+    const cleanup = () => {
+      document.body.classList.remove('is-printing-report');
+      printNode.remove();
+      window.removeEventListener('afterprint', cleanup);
+    };
+
+    window.addEventListener('afterprint', cleanup);
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        window.print();
+        setTimeout(cleanup, 30000);
+      });
+    });
   };
 
   const blobToBase64 = (blob) => new Promise((resolve, reject) => {
@@ -432,23 +458,42 @@ function App() {
     const source = document.getElementById('report-print-container');
     if (!source) return;
 
+    const exportSandbox = document.createElement('div');
+    exportSandbox.className = 'pdf-export-sandbox';
+
     const exportNode = document.createElement('div');
     exportNode.className = 'pdf-export-container';
     exportNode.innerHTML = source.innerHTML;
-    document.body.appendChild(exportNode);
+    exportSandbox.appendChild(exportNode);
+    document.body.appendChild(exportSandbox);
 
     try {
       setSubmitStatus('PDF 생성 중...');
       const { default: html2pdf } = await import('html2pdf.js');
+      if (document.fonts?.ready) {
+        await document.fonts.ready;
+      }
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+
       const pdfBlob = await html2pdf()
         .set({
           margin: 8,
           filename: `${studentInfo.id}_ion_report.pdf`,
-          html2canvas: { scale: 2 },
+          pagebreak: { mode: ['css', 'legacy'] },
+          html2canvas: {
+            backgroundColor: '#ffffff',
+            scale: Math.min(2, window.devicePixelRatio || 1.5),
+            scrollX: 0,
+            scrollY: 0,
+            useCORS: true,
+            windowWidth: 794,
+            windowHeight: exportNode.scrollHeight
+          },
           jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
         })
         .from(exportNode)
         .outputPdf('blob');
+      exportSandbox.remove();
 
       setSubmitStatus('Drive로 제출 중...');
       const fileBase64 = await blobToBase64(pdfBlob);
@@ -465,7 +510,7 @@ function App() {
     } catch (err) {
       setSubmitStatus(`제출 실패: ${err.message}`);
     } finally {
-      exportNode.remove();
+      exportSandbox.remove();
     }
   };
 
