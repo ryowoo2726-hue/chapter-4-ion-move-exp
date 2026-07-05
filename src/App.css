@@ -1524,6 +1524,49 @@ body.dark-theme .svg-canvas-container {
     padding: 0.9rem;
   }
 
+  .checklist-group {
+    padding: 0.35rem;
+    gap: 0.35rem;
+    border-radius: 10px;
+  }
+
+  .checklist-group .checklist-parent {
+    padding: 0.6rem 0.8rem;
+  }
+
+  .checklist-progress-badge {
+    font-size: 0.68rem;
+    padding: 0.1rem 0.4rem;
+    margin-left: 0.4rem;
+  }
+
+  .checklist-sub-list {
+    padding-left: 1rem;
+    margin-left: 1.25rem;
+    gap: 0.35rem;
+  }
+
+  .checklist-sub-item {
+    padding: 0.45rem 0.65rem;
+    gap: 0.5rem;
+    border-radius: 6px;
+  }
+
+  .checkbox-sub {
+    width: 16px;
+    height: 16px;
+  }
+
+  .checkbox-sub::after {
+    width: 3px;
+    height: 7px;
+    top: 0px;
+  }
+
+  .title-sub {
+    font-size: 0.82rem;
+  }
+
   .checkbox-custom {
     height: 28px;
     width: 28px;
