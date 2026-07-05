@@ -47,7 +47,7 @@ export default function ExperimentSimulator({
   }, [isPowerOn, voltage, setBlueIonPos, setPurpleIonPos]);
 
   // Determine label states based on step
-  const isReagentAdded = step >= 1; // Step 2 (0-indexed: 1) or higher
+  const isReagentAdded = step >= 2; // Step 3 (0-indexed: 2) or higher
   const isVoltageActive = step >= 2; // Step 3 (0-indexed: 2) or higher
 
   return (
@@ -226,12 +226,17 @@ export default function ExperimentSimulator({
       {/* Hint messaging inside simulator depending on step */}
       {step === 0 && (
         <div className="sim-tip-card">
-          <strong>팁:</strong> 1단계 완료 후 2단계로 넘어가 '황산 구리'와 '과망가니즈산 칼륨' 수용액을 떨어뜨리면 이온이 튜브에서 연필선 위에 올라갑니다.
+          <strong>팁:</strong> 1단계 완료 후 2단계로 넘어가서 황산구리 수용액을 제조하고 전해질을 세팅하세요.
         </div>
       )}
       {step === 1 && (
         <div className="sim-tip-card">
-          <strong>팁:</strong> 시약이 중심선 위에 잘 배치되었습니다! 이제 3단계로 이동하여 전원 케이블을 연결하고 전원을 켜봅시다.
+          <strong>팁:</strong> 수용액 제조와 전해질 세팅이 완료되었습니다! 3단계로 넘어가서 실험을 진행하세요.
+        </div>
+      )}
+      {step === 2 && !isPowerOn && (
+        <div className="sim-tip-card">
+          <strong>팁:</strong> 전원 연결 단계를 체크하고 전원 공급 장치를 켜주세요(ON).
         </div>
       )}
       {isPowerOn && voltage === 0 && (

@@ -43,20 +43,69 @@ export default function StepRenderer({
 
       <div className="checklist-container">
         {currentStepData.items.map((item) => {
-          const isChecked = !!stepChecklist[item.id];
-          return (
-            <div
-              key={item.id}
-              className={`checklist-item ${isChecked ? 'checked' : ''}`}
-              onClick={() => toggleCheck(step, item.id)}
-            >
-              <div className="checkbox-custom"></div>
-              <div className="checklist-text">
-                <span className="checklist-title">{item.title}</span>
-                <span className="checklist-desc">{item.desc}</span>
+          const hasSubItems = item.subItems && item.subItems.length > 0;
+          
+          if (hasSubItems) {
+            const allSubChecked = item.subItems.every(sub => !!stepChecklist[sub.id]);
+            const checkedCount = item.subItems.filter(sub => !!stepChecklist[sub.id]).length;
+            const subIds = item.subItems.map(sub => sub.id);
+
+            return (
+              <div key={item.id} className="checklist-group">
+                {/* Major Item Header */}
+                <div 
+                  className={`checklist-item checklist-parent ${allSubChecked ? 'checked' : ''}`}
+                  onClick={() => toggleCheck(step, subIds)}
+                >
+                  <div className="checkbox-custom"></div>
+                  <div className="checklist-text">
+                    <span className="checklist-title">
+                      {item.title}
+                      <span className="checklist-progress-badge">
+                        {checkedCount} / {item.subItems.length} 완료
+                      </span>
+                    </span>
+                    {item.desc && <span className="checklist-desc">{item.desc}</span>}
+                  </div>
+                </div>
+
+                {/* Sub Checklist Items */}
+                <div className="checklist-sub-list">
+                  {item.subItems.map((sub) => {
+                    const isSubChecked = !!stepChecklist[sub.id];
+                    return (
+                      <div
+                        key={sub.id}
+                        className={`checklist-item checklist-sub-item ${isSubChecked ? 'checked' : ''}`}
+                        onClick={() => toggleCheck(step, sub.id)}
+                      >
+                        <div className="checkbox-custom checkbox-sub"></div>
+                        <div className="checklist-text">
+                          <span className="checklist-title title-sub">{sub.title}</span>
+                          {sub.desc && <span className="checklist-desc desc-sub">{sub.desc}</span>}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          );
+            );
+          } else {
+            const isChecked = !!stepChecklist[item.id];
+            return (
+              <div
+                key={item.id}
+                className={`checklist-item ${isChecked ? 'checked' : ''}`}
+                onClick={() => toggleCheck(step, item.id)}
+              >
+                <div className="checkbox-custom"></div>
+                <div className="checklist-text">
+                  <span className="checklist-title">{item.title}</span>
+                  {item.desc && <span className="checklist-desc">{item.desc}</span>}
+                </div>
+              </div>
+            );
+          }
         })}
       </div>
 

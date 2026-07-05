@@ -13,40 +13,83 @@ const REMOTE_STEPS_CACHE_KEY = 'ion_remote_steps_cache';
 const defaultStepsData = [
   {
     title: '실험 준비',
-    objective: '실험에 필요한 기구를 확인하고 거름종이에 전해질을 적셔 준비합니다.',
+    objective: '실험 도구 및 안전을 확인하고 준비합니다.',
     items: [
-      { id: 'prep_materials', title: '실험 준비물 확인하기', desc: '거름종이, 유리판, 전원장치, 악어 집게, 질산 칼륨(KNO₃) 수용액, 황산 구리(CuSO₄) 수용액, 과망가니즈산 칼륨(KMnO₄) 수용액을 준비합니다.' },
-      { id: 'pencil_line', title: '거름종이에 기준선(연필선) 긋기', desc: '거름종이 가운데에 자를 대고 연필로 선을 긋고, 양쪽 끝에 각각 (-)극과 (+)극을 표시합니다.' },
-      { id: 'kno3_wet', title: '질산 칼륨 수용액 적시기', desc: '거름종이를 질산 칼륨(KNO₃) 수용액으로 충분히 적셔 전류가 흐를 수 있는 환경(전해질)을 만듭니다.' },
-      { id: 'dry_paper', title: '여분의 물기 닦아내기', desc: '거름종이가 축축한 상태를 유지하되 물방울이 고이지 않도록 거름종이 가장자리의 물기를 살짝 닦아내어 유리판 위에 놓습니다.' }
+      {
+        id: 'prep_materials',
+        title: '실험 준비물 확인하기',
+        subItems: [
+          { id: 'prep_beaker', title: '비커 3개' },
+          { id: 'prep_petri', title: '페트리 접시 2개' },
+          { id: 'prep_scale', title: '전자저울' },
+          { id: 'prep_paper', title: '거름종이' },
+          { id: 'prep_spoon', title: '약 스푼' },
+          { id: 'prep_battery', title: '건전지 3개' },
+          { id: 'prep_wire', title: '집게 전선 2개' },
+          { id: 'prep_a4', title: 'A4용지' }
+        ]
+      },
+      {
+        id: 'prep_safety',
+        title: '안전 도구 확인',
+        subItems: [
+          { id: 'prep_gloves', title: '장갑' },
+          { id: 'prep_trash', title: '폐기물 쓰레기통' }
+        ]
+      },
+      {
+        id: 'prep_setup',
+        title: '실험 도구 세팅',
+        subItems: [
+          { id: 'setup_a4_polarity', title: 'A4용지에 +, - 위치 설정하기' },
+          { id: 'setup_petri_on_a4', title: '그 위에 페트리 접시 올려놓기' },
+          { id: 'setup_connect_battery', title: '건전지 3개 연결하기' },
+          { id: 'setup_wire_to_petri', title: '집게 전선과 페트리 접시 연결하기' }
+        ]
+      }
     ]
   },
   {
-    title: '시약 점적',
-    objective: '중앙 기준선 위에 관찰용 이온 수용액을 떨어뜨리고 전극을 설치합니다.',
+    title: '수용액 만들기',
+    objective: '황산구리 수용액과 과망가니즈산 수용액을 만듭니다.',
     items: [
-      { id: 'drop_cu', title: '황산 구리 수용액 점적하기', desc: '모세관이나 피펫을 이용해 파란색 황산 구리(CuSO₄) 수용액 한 방울을 연필선의 중앙 위쪽에 떨어뜨립니다.' },
-      { id: 'drop_kmno', title: '과망가니즈산 칼륨 수용액 점적하기', desc: '보라색 과망가니즈산 칼륨(KMnO₄) 수용액 한 방울을 연필선의 중앙 아래쪽에 떨어뜨립니다.' },
-      { id: 'clip_connect', title: '악어 집게 연결하기', desc: '거름종이의 (-) 표시선 쪽에 검은색 집게전극을, (+) 표시선 쪽에 빨간색 집게전극을 각각 연결합니다.' }
+      {
+        id: 'make_cuso4',
+        title: '황산구리 수용액 (5% ~ 15%) 제작',
+        subItems: [
+          { id: 'cuso4_water', title: '비커에 물 100ml 채우기' },
+          { id: 'cuso4_mix', title: '황산구리 넣고 섞기' }
+        ]
+      },
+      {
+        id: 'make_electrolyte',
+        title: '전해질 세팅',
+        subItems: [
+          { id: 'electrolyte_kno3', title: '페트리 접시에 질산칼륨 수용액 채우기' }
+        ]
+      }
     ]
   },
   {
     title: '실험 진행',
-    objective: '전원 공급 장치를 켜고 전압을 가한 뒤 변화를 일으킵니다.',
+    objective: '실험을 진행하고 이온의 이동을 관찰합니다.',
     items: [
-      { id: 'power_connect', title: '전원 장치 연결선 재확인', desc: '집게선이 DC 전원 장치에 알맞은 극성으로 꽂혀 있는지 최종 점검합니다.' },
-      { id: 'switch_on', title: '전원 인가 및 전압 서서히 높이기', desc: '전원 장치 스위치를 켜고 전압을 6V~10V 사이로 올려 시뮬레이터 속 이온이 움직이기 시작하는 것을 확인합니다.' },
-      { id: 'observe_blue', title: '파란색 성분의 이동 관찰', desc: '파란색 구리 이온(Cu²⁺) 성분이 어느 극(왼쪽 (-)극) 방향으로 번져나가는지 세심히 관찰합니다.' },
-      { id: 'observe_purple', title: '보라색 성분의 이동 관찰', desc: '보라색 과망가니즈산 이온(MnO₄⁻) 성분이 어느 극(오른쪽 (+)극) 방향으로 번져나가는지 세심히 관찰합니다.' }
-    ]
-  },
-  {
-    title: '결과 정리',
-    objective: '이온 성분의 이동 방향을 관찰하여 이온이 띠는 전하의 성질을 추론합니다.',
-    items: [
-      { id: 'infer_blue', title: '구리 이온의 전하 추론', desc: '파란색 구리 이온이 (-)극으로 이동하는 성질로부터 구리 이온은 양(+)전하를 띠고 있음을 밝혀냅니다.' },
-      { id: 'infer_purple', title: '과망가니즈산 이온의 전하 추론', desc: '보라색 과망가니즈산 이온이 (+)극으로 이동하는 성질로부터 과망가니즈산 이온은 음(-)전하를 띠고 있음을 밝혀냅니다.' },
-      { id: 'electrolyte_role', title: '질산 칼륨 수용액 역할 이해', desc: '전하를 운반해주어 전류가 흐르도록 돕는 전해질의 기능에 대한 탐구를 끝마칩니다.' }
+      {
+        id: 'run_power',
+        title: '전원 연결',
+        subItems: [
+          { id: 'connect_red_plus', title: '빨간색 집게 전선을 [건전지 +극]에 연결' },
+          { id: 'connect_black_minus', title: '검은색 집게 전선을 [건전지 -극]에 연결' }
+        ]
+      },
+      {
+        id: 'run_observe',
+        title: '황산구리 수용액 떨구기 및 관찰',
+        subItems: [
+          { id: 'drop_cuso4_sol', title: '페트리 접시 중앙에 황산구리 수용액 떨구기' },
+          { id: 'observe_blue_move', title: '파란색 성분의 이동 관찰하기' }
+        ]
+      }
     ]
   },
   {
@@ -60,9 +103,7 @@ const defaultStepsData = [
   }
 ];
 
-const defaultVisibleStepsData = defaultStepsData.filter(
-  stepData => !stepData.items?.some(item => item.id === 'infer_blue')
-);
+const defaultVisibleStepsData = defaultStepsData;
 
 const createDefaultChecklist = (stepsData = defaultVisibleStepsData) => (
   stepsData.reduce((acc, _step, idx) => ({ ...acc, [idx]: {} }), {})
@@ -70,7 +111,7 @@ const createDefaultChecklist = (stepsData = defaultVisibleStepsData) => (
 
 const normalizeStepsData = (stepsData) => {
   if (!Array.isArray(stepsData) || stepsData.length === 0) return defaultVisibleStepsData;
-  return stepsData.filter(stepData => !stepData.items?.some(item => item.id === 'infer_blue'));
+  return stepsData;
 };
 
 const defaultReportAnswers = {
@@ -221,7 +262,12 @@ function App() {
     const stepItems = steps[stepIdx]?.items || [];
     if (stepItems.length === 0) return false;
     const stepChecklist = checklist[stepIdx] || {};
-    return stepItems.every(item => !!stepChecklist[item.id]);
+    return stepItems.every(item => {
+      if (item.subItems && item.subItems.length > 0) {
+        return item.subItems.every(sub => !!stepChecklist[sub.id]);
+      }
+      return !!stepChecklist[item.id];
+    });
   };
 
   // Check if step is unlocked (all prior steps must be fully completed)
@@ -233,18 +279,32 @@ function App() {
   };
 
   // Handle checking checklist items
-  const toggleCheck = (stepIdx, itemId) => {
+  const toggleCheck = (stepIdx, itemIdOrIds) => {
     setChecklist(prev => {
       const stepItems = steps[stepIdx]?.items || [];
       const prevStepChecklist = prev[stepIdx] || {};
-      const wasCompleted = stepItems.every(item => !!prevStepChecklist[item.id]);
+      const idsToToggle = Array.isArray(itemIdOrIds) ? itemIdOrIds : [itemIdOrIds];
+      
+      const wasCompleted = isStepCompleted(stepIdx);
 
-      const updatedStep = {
-        ...prevStepChecklist,
-        [itemId]: !prevStepChecklist[itemId]
-      };
+      const updatedStep = { ...prevStepChecklist };
+      
+      if (Array.isArray(itemIdOrIds)) {
+        const allChecked = idsToToggle.every(id => !!prevStepChecklist[id]);
+        const targetVal = !allChecked;
+        idsToToggle.forEach(id => {
+          updatedStep[id] = targetVal;
+        });
+      } else {
+        updatedStep[itemIdOrIds] = !prevStepChecklist[itemIdOrIds];
+      }
 
-      const isCompletedNow = stepItems.every(item => !!updatedStep[item.id]);
+      const isCompletedNow = stepItems.every(item => {
+        if (item.subItems && item.subItems.length > 0) {
+          return item.subItems.every(sub => !!updatedStep[sub.id]);
+        }
+        return !!updatedStep[item.id];
+      });
 
       if (!wasCompleted && isCompletedNow) {
         triggerConfetti();
@@ -266,7 +326,6 @@ function App() {
     const hasWriteInfo = reportStepItems.some(i => i.id === 'write_info');
     const hasWriteHypo = reportStepItems.some(i => i.id === 'write_hypothesis');
     const hasSelfEval = reportStepItems.some(i => i.id === 'self_eval');
-
     const hasForm = !!(reportAnswers.hypothesis && reportAnswers.blueElectrode && reportAnswers.purpleElectrode && reportAnswers.observationDetail && reportAnswers.copperExplanation && reportAnswers.permanganateExplanation && reportAnswers.electrolyte && reportAnswers.conclusion);
     const hasEval = !!(selfEvaluation.attitude && selfEvaluation.skill && selfEvaluation.knowledge);
 

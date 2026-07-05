@@ -32,6 +32,7 @@ export default function AdminPanel({
         [field]: value
       };
       return updated;
+
     });
   };
 
@@ -78,6 +79,88 @@ export default function AdminPanel({
     });
   };
 
+  // Update sub-item title
+  const handleSubItemTitleChange = (itemId, subItemId, value) => {
+    setLocalSteps(prev => {
+      const updated = [...prev];
+      const items = updated[selectedStepIdx].items.map(item => {
+        if (item.id === itemId) {
+          const subItems = (item.subItems || []).map(sub => {
+            if (sub.id === subItemId) {
+              return { ...sub, title: value };
+            }
+            return sub;
+          });
+          return { ...item, subItems };
+        }
+        return item;
+      });
+      updated[selectedStepIdx].items = items;
+      return updated;
+    });
+  };
+
+  // Add sub-item under a major item
+  const handleAddSubItem = (itemId) => {
+    const newSubId = `sub_item_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`;
+    setLocalSteps(prev => {
+      const updated = [...prev];
+      const items = updated[selectedStepIdx].items.map(item => {
+        if (item.id === itemId) {
+          const subItems = item.subItems ? [...item.subItems] : [];
+          subItems.push({ id: newSubId, title: '새 세부 항목' });
+          return { ...item, subItems, desc: '' }; // Clear desc when using subItems
+        }
+        return item;
+      });
+      updated[selectedStepIdx].items = items;
+      return updated;
+    });
+  };
+
+  // Delete sub-item
+  const handleDeleteSubItem = (itemId, subItemId) => {
+    setLocalSteps(prev => {
+      const updated = [...prev];
+      const items = updated[selectedStepIdx].items.map(item => {
+        if (item.id === itemId) {
+          const subItems = (item.subItems || []).filter(sub => sub.id !== subItemId);
+          return { ...item, subItems };
+        }
+        return item;
+      });
+      updated[selectedStepIdx].items = items;
+      return updated;
+    });
+  };
+
+  // Convert checklist item type (to nested or standard)
+  const handleConvertItemType = (itemId, toType) => {
+    setLocalSteps(prev => {
+      const updated = [...prev];
+      const items = updated[selectedStepIdx].items.map(item => {
+        if (item.id === itemId) {
+          if (toType === 'sub') {
+            return {
+              ...item,
+              desc: '',
+              subItems: [{ id: `sub_item_${Date.now()}`, title: '새 세부 항목' }]
+            };
+          } else {
+            const { subItems: _subItems, ...rest } = item;
+            return {
+              ...rest,
+              desc: '여기에 체크리스트 상세 설명을 적어주세요.'
+            };
+          }
+        }
+        return item;
+      });
+      updated[selectedStepIdx].items = items;
+      return updated;
+    });
+  };
+
   // Trigger PIN Verification Modal
   const handleTriggerSave = () => {
     // Basic validation: ensure all items have values
@@ -96,6 +179,14 @@ export default function AdminPanel({
         if (!item.title.trim()) {
           alert(`${sIdx + 1}단계의 일부 항목 제목이 비어있습니다.`);
           return;
+        }
+        if (item.subItems && item.subItems.length > 0) {
+          for (let j = 0; j < item.subItems.length; j++) {
+            if (!item.subItems[j].title.trim()) {
+              alert(`${sIdx + 1}단계의 일부 세부 항목 제목이 비어있습니다.`);
+              return;
+            }
+          }
         }
       }
     }
@@ -328,20 +419,75 @@ export default function AdminPanel({
                       value={item.title}
                       onChange={(e) => handleItemFieldChange(item.id, 'title', e.target.value)}
                       className="form-input"
-                      placeholder="체크할 핵심 액션 설명"
-                      style={{ padding: '0.5rem', fontSize: '0.9rem' }}
+                      placeholder="체크할 핵심 액션 또는 대주제 제목"
+                      style={{ padding: '0.5rem', fontSize: '0.9rem', fontWeight: 'bold' }}
                     />
                   </div>
 
-                  <div className="form-group">
-                    <textarea
-                      value={item.desc}
-                      onChange={(e) => handleItemFieldChange(item.id, 'desc', e.target.value)}
-                      className="form-textarea"
-                      placeholder="행동 요령 또는 이온에 관한 상세 가이드라인 설명"
-                      style={{ minHeight: '50px', padding: '0.5rem', fontSize: '0.8rem' }}
-                    />
-                  </div>
+                  {item.subItems && item.subItems.length > 0 ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '0.25rem', paddingLeft: '1rem', borderLeft: '2px dashed var(--border-color)' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontSize: '0.8rem', fontWeight: 'bold', color: 'var(--text-secondary)' }}>소주제 항목 목록</span>
+                        <button
+                          type="button"
+                          onClick={() => handleAddSubItem(item.id)}
+                          className="btn"
+                          style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem', background: 'var(--primary)', color: 'white', borderRadius: '6px', border: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
+                        >
+                          + 세부 항목 추가
+                        </button>
+                      </div>
+                      {item.subItems.map((sub, subIdx) => (
+                        <div key={sub.id} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{subIdx + 1}.</span>
+                          <input
+                            type="text"
+                            value={sub.title}
+                            onChange={(e) => handleSubItemTitleChange(item.id, sub.id, e.target.value)}
+                            className="form-input"
+                            placeholder="세부 항목 내용"
+                            style={{ padding: '0.4rem', fontSize: '0.85rem', flex: 1 }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteSubItem(item.id, sub.id)}
+                            className="btn"
+                            style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem', background: 'rgba(239, 68, 68, 0.1)', color: 'var(--danger)', borderRadius: '6px', border: 'none' }}
+                          >
+                            삭제
+                          </button>
+                        </div>
+                      ))}
+                      <button
+                        type="button"
+                        onClick={() => handleConvertItemType(item.id, 'std')}
+                        className="btn"
+                        style={{ alignSelf: 'flex-start', marginTop: '0.5rem', padding: '0.25rem 0.5rem', fontSize: '0.75rem', background: 'rgba(148, 163, 184, 0.15)', color: 'var(--text-secondary)', border: 'none', borderRadius: '6px' }}
+                      >
+                        일반 항목(단일형)으로 변환
+                      </button>
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                      <div className="form-group">
+                        <textarea
+                          value={item.desc || ''}
+                          onChange={(e) => handleItemFieldChange(item.id, 'desc', e.target.value)}
+                          className="form-textarea"
+                          placeholder="행동 요령 또는 이온에 관한 상세 가이드라인 설명"
+                          style={{ minHeight: '50px', padding: '0.5rem', fontSize: '0.8rem' }}
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleConvertItemType(item.id, 'sub')}
+                        className="btn"
+                        style={{ alignSelf: 'flex-start', padding: '0.25rem 0.5rem', fontSize: '0.75rem', background: 'rgba(148, 163, 184, 0.15)', color: 'var(--text-secondary)', border: 'none', borderRadius: '6px' }}
+                      >
+                        중첩 체크리스트(소주제) 추가
+                      </button>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
