@@ -106,14 +106,18 @@ export default function AdminPanel({
   };
 
   // Confirm PIN and Save
-  const handlePinSubmit = (e) => {
+  const handlePinSubmit = async (e) => {
     if (e) e.preventDefault();
     
     if (pinInput === '2726') {
-      onSave(localSteps);
-      setShowPinModal(false);
-      setSaveStatus('success');
-      setTimeout(() => setSaveStatus(''), 3000);
+      try {
+        await onSave(localSteps, pinInput);
+        setShowPinModal(false);
+        setSaveStatus('success');
+        setTimeout(() => setSaveStatus(''), 3000);
+      } catch (err) {
+        setPinError(`저장 실패: ${err.message}`);
+      }
     } else {
       setPinError('PIN 번호가 일치하지 않습니다. 다시 입력해주세요.');
       setPinInput('');

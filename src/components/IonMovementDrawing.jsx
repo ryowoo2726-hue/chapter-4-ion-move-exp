@@ -19,7 +19,7 @@ export default function IonMovementDrawing({ value, onChange }) {
   const drawingRef = useRef(false);
   const lastPointRef = useRef(null);
   const [color, setColor] = useState(COLORS[0].value);
-  const [lineWidth, setLineWidth] = useState(8);
+  const [lineWidth, setLineWidth] = useState(10);
   const [tool, setTool] = useState('pen');
 
   const drawBackground = (ctx) => {
@@ -68,10 +68,9 @@ export default function IonMovementDrawing({ value, onChange }) {
   const getPoint = (event) => {
     const canvas = canvasRef.current;
     const rect = canvas.getBoundingClientRect();
-    const pointer = event;
     return {
-      x: ((pointer.clientX - rect.left) / rect.width) * CANVAS_WIDTH,
-      y: ((pointer.clientY - rect.top) / rect.height) * CANVAS_HEIGHT
+      x: ((event.clientX - rect.left) / rect.width) * CANVAS_WIDTH,
+      y: ((event.clientY - rect.top) / rect.height) * CANVAS_HEIGHT
     };
   };
 
@@ -117,7 +116,7 @@ export default function IonMovementDrawing({ value, onChange }) {
   return (
     <div className="drawing-tool">
       <div className="drawing-toolbar">
-        <div className="drawing-color-group">
+        <div className="drawing-color-group" aria-label="펜 색상">
           {COLORS.map(item => (
             <button
               key={item.value}
@@ -132,6 +131,7 @@ export default function IonMovementDrawing({ value, onChange }) {
             />
           ))}
         </div>
+
         <button
           type="button"
           className={`drawing-tool-btn ${tool === 'eraser' ? 'active' : ''}`}
@@ -139,16 +139,18 @@ export default function IonMovementDrawing({ value, onChange }) {
         >
           지우개
         </button>
+
         <label className="drawing-size-control">
-          굵기
+          <span>굵기</span>
           <input
             type="range"
-            min="3"
-            max="18"
+            min="4"
+            max="24"
             value={lineWidth}
             onChange={(event) => setLineWidth(Number(event.target.value))}
           />
         </label>
+
         <button type="button" className="drawing-tool-btn" onClick={resetCanvas}>
           초기화
         </button>

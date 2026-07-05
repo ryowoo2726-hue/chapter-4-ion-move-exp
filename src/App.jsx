@@ -7,6 +7,7 @@ import ReportPrintView from './components/ReportPrintView';
 import AdminPanel from './components/AdminPanel';
 
 const DEFAULT_DRIVE_UPLOAD_URL = 'https://script.google.com/macros/s/AKfycbyG1Ke74i4tTeNJGeZj_qerXZJdUPSOFbgePv6PPM8n9jeShEuPQPl1aAkv6fZ-LtS5/exec';
+const REMOTE_STEPS_CACHE_KEY = 'ion_remote_steps_cache';
 
 // Default standard school curriculum experiment steps data
 const defaultStepsData = [
@@ -59,6 +60,19 @@ const defaultStepsData = [
   }
 ];
 
+const defaultVisibleStepsData = defaultStepsData.filter(
+  stepData => !stepData.items?.some(item => item.id === 'infer_blue')
+);
+
+const createDefaultChecklist = (stepsData = defaultVisibleStepsData) => (
+  stepsData.reduce((acc, _step, idx) => ({ ...acc, [idx]: {} }), {})
+);
+
+const normalizeStepsData = (stepsData) => {
+  if (!Array.isArray(stepsData) || stepsData.length === 0) return defaultVisibleStepsData;
+  return stepsData.filter(stepData => !stepData.items?.some(item => item.id === 'infer_blue'));
+};
+
 const defaultReportAnswers = {
   hypothesis: '이온은 전하를 띠고 있으므로 수용액에 전압을 가하면 각 이온은 자신의 전하와 다른 부호의 전극 방향으로 끌려갈 것이다.',
   blueElectrode: '',
@@ -75,7 +89,7 @@ const defaultProgress = (studentId = '') => ({
   studentInfo: { id: studentId },
   reportAnswers: defaultReportAnswers,
   selfEvaluation: { attitude: '', skill: '', knowledge: '' },
-  checklist: { 0: {}, 1: {}, 2: {}, 3: {}, 4: {} },
+  checklist: createDefaultChecklist(),
   step: 0
 });
 
@@ -103,16 +117,51 @@ function App() {
   
   // Steps Data State (initialized from localStorage or default template)
   const [steps, setSteps] = useState(() => {
+    const remoteCache = localStorage.getItem(REMOTE_STEPS_CACHE_KEY);
+    if (remoteCache) {
+      try {
+        const parsed = JSON.parse(remoteCache);
+        if (Array.isArray(parsed) && parsed.length > 0) return normalizeStepsData(parsed);
+      } catch (e) {
+        console.error('Failed to parse remote steps cache:', e);
+      }
+    }
+
     const saved = localStorage.getItem('ion_experiment_steps');
     if (saved) {
       try {
-        return JSON.parse(saved);
+        return normalizeStepsData(JSON.parse(saved));
       } catch (e) {
         console.error('Failed to parse steps configuration from localStorage:', e);
       }
     }
-    return defaultStepsData;
+    return defaultVisibleStepsData;
   });
+
+  useEffect(() => {
+    if (!driveUploadUrl) return;
+
+    let cancelled = false;
+    const loadRemoteSteps = async () => {
+      try {
+        const url = new URL(driveUploadUrl);
+        url.searchParams.set('action', 'getConfig');
+        const res = await fetch(url.toString(), { method: 'GET' });
+        const result = await res.json();
+        if (cancelled || !result.ok || !Array.isArray(result.steps) || result.steps.length === 0) return;
+        const normalizedSteps = normalizeStepsData(result.steps);
+        setSteps(normalizedSteps);
+        localStorage.setItem(REMOTE_STEPS_CACHE_KEY, JSON.stringify(normalizedSteps));
+      } catch (err) {
+        console.warn('Remote class settings could not be loaded:', err);
+      }
+    };
+
+    loadRemoteSteps();
+    return () => {
+      cancelled = true;
+    };
+  }, [driveUploadUrl]);
 
   const [studentIds, setStudentIds] = useState(() => {
     const saved = localStorage.getItem('ion_student_ids');
@@ -136,6 +185,7 @@ function App() {
   const [voltage, setVoltage] = useState(0);
   const [blueIonPos, setBlueIonPos] = useState(0.5); // starts at 50% (middle)
   const [purpleIonPos, setPurpleIonPos] = useState(0.5); // starts at 50% (middle)
+  const reportStepIdx = Math.max(steps.length - 1, 0);
 
   // Confetti Canvas Refs
   const canvasRef = useRef(null);
@@ -154,6 +204,12 @@ function App() {
     };
     localStorage.setItem(getProgressKey(studentInfo.id), JSON.stringify(progress));
   }, [studentInfo, reportAnswers, selfEvaluation, checklist, step]);
+
+  useEffect(() => {
+    if (step >= steps.length) {
+      setStep(Math.max(steps.length - 1, 0));
+    }
+  }, [step, steps.length]);
 
   // Toggle App Theme
   const toggleTheme = () => {
@@ -206,16 +262,16 @@ function App() {
     const hasProfile = !!studentInfo.id;
     
     // Validate form: only check fields if they exist in customized steps
-    const stepFiveItems = steps[4]?.items || [];
-    const hasWriteInfo = stepFiveItems.some(i => i.id === 'write_info');
-    const hasWriteHypo = stepFiveItems.some(i => i.id === 'write_hypothesis');
-    const hasSelfEval = stepFiveItems.some(i => i.id === 'self_eval');
+    const reportStepItems = steps[reportStepIdx]?.items || [];
+    const hasWriteInfo = reportStepItems.some(i => i.id === 'write_info');
+    const hasWriteHypo = reportStepItems.some(i => i.id === 'write_hypothesis');
+    const hasSelfEval = reportStepItems.some(i => i.id === 'self_eval');
 
     const hasForm = !!(reportAnswers.hypothesis && reportAnswers.blueElectrode && reportAnswers.purpleElectrode && reportAnswers.observationDetail && reportAnswers.copperExplanation && reportAnswers.permanganateExplanation && reportAnswers.electrolyte && reportAnswers.conclusion);
     const hasEval = !!(selfEvaluation.attitude && selfEvaluation.skill && selfEvaluation.knowledge);
 
     setChecklist(prev => {
-      const prevStepChecklist = prev[4] || {};
+      const prevStepChecklist = prev[reportStepIdx] || {};
       
       const newInfoVal = hasWriteInfo ? hasProfile : true;
       const newHypoVal = hasWriteHypo ? hasForm : true;
@@ -234,8 +290,8 @@ function App() {
         if (hasWriteHypo) updatedStep.write_hypothesis = newHypoVal;
         if (hasSelfEval) updatedStep.self_eval = newEvalVal;
 
-        const wasCompleted = stepFiveItems.every(item => !!prevStepChecklist[item.id]);
-        const isCompletedNow = stepFiveItems.every(item => !!updatedStep[item.id]);
+        const wasCompleted = reportStepItems.every(item => !!prevStepChecklist[item.id]);
+        const isCompletedNow = reportStepItems.every(item => !!updatedStep[item.id]);
 
         if (!wasCompleted && isCompletedNow) {
           triggerConfetti();
@@ -243,12 +299,12 @@ function App() {
 
         return {
           ...prev,
-          4: updatedStep
+          [reportStepIdx]: updatedStep
         };
       }
       return prev;
     });
-  }, [studentInfo, reportAnswers, selfEvaluation, steps]);
+  }, [studentInfo, reportAnswers, selfEvaluation, steps, reportStepIdx]);
 
   // Confetti Particle Explosion
   const triggerConfetti = () => {
@@ -330,8 +386,8 @@ function App() {
     setStudentInfo({ id: progress.studentInfo?.id || '' });
     setReportAnswers({ ...defaultReportAnswers, ...progress.reportAnswers });
     setSelfEvaluation({ attitude: '', skill: '', knowledge: '', ...progress.selfEvaluation });
-    setChecklist(progress.checklist || { 0: {}, 1: {}, 2: {}, 3: {}, 4: {} });
-    setStep(progress.step || 0);
+    setChecklist(progress.checklist || createDefaultChecklist(steps));
+    setStep(Math.min(progress.step || 0, Math.max(steps.length - 1, 0)));
     resetSim();
   };
 
@@ -401,16 +457,32 @@ function App() {
   };
 
   // Admin page save handlers
-  const saveCustomSteps = (newSteps) => {
-    setSteps(newSteps);
-    localStorage.setItem('ion_experiment_steps', JSON.stringify(newSteps));
+  const saveCustomSteps = async (newSteps, pin) => {
+    const normalizedSteps = normalizeStepsData(newSteps);
+    setSteps(normalizedSteps);
+    localStorage.setItem('ion_experiment_steps', JSON.stringify(normalizedSteps));
+    localStorage.setItem(REMOTE_STEPS_CACHE_KEY, JSON.stringify(normalizedSteps));
+
+    if (!driveUploadUrl) return;
+
+    const res = await fetch(driveUploadUrl, {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'saveConfig',
+        pin,
+        steps: normalizedSteps
+      })
+    });
+    const result = await res.json();
+    if (!result.ok) throw new Error(result.error || '설정 저장 실패');
   };
 
   // Admin page reset handler
   const resetCustomSteps = () => {
-    setSteps(defaultStepsData);
+    setSteps(defaultVisibleStepsData);
     localStorage.removeItem('ion_experiment_steps');
-    return defaultStepsData;
+    localStorage.removeItem(REMOTE_STEPS_CACHE_KEY);
+    return defaultVisibleStepsData;
   };
 
   const triggerPrint = () => {
@@ -668,7 +740,7 @@ function App() {
           ) : (
             <>
               {/* Left Column: Instruction & Checklist or Report Writer */}
-              {step < 4 ? (
+              {step < reportStepIdx ? (
                 <StepRenderer
                   step={step}
                   checklist={checklist}
@@ -682,8 +754,10 @@ function App() {
               ) : (
                 <div className="content-pane">
                   <div className="content-pane-header">
-                    <h2 className="content-pane-title">5. 평가 보고서 작성</h2>
-                    {isStepCompleted(4) && (
+                    <h2 className="content-pane-title">
+                      {reportStepIdx + 1}. {steps[reportStepIdx]?.title || '보고서 작성'}
+                    </h2>
+                    {isStepCompleted(reportStepIdx) && (
                       <span style={{ background: 'rgba(16, 185, 129, 0.15)', color: 'var(--success)', fontWeight: 800, fontSize: '0.8rem', padding: '0.25rem 0.75rem', borderRadius: '20px' }}>
                         ✓ 모든 항목 완료 (출력 가능)
                       </span>

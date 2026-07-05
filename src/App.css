@@ -815,8 +815,8 @@ body.dark-theme .svg-canvas-container {
   border-radius: 999px;
   box-shadow: 0 0 0 1px var(--border-color);
   cursor: pointer;
-  height: 34px;
-  width: 34px;
+  height: 40px;
+  width: 40px;
 }
 
 .drawing-swatch.active {
@@ -832,8 +832,8 @@ body.dark-theme .svg-canvas-container {
   cursor: pointer;
   font-size: 0.85rem;
   font-weight: 800;
-  min-height: 36px;
-  padding: 0.45rem 0.75rem;
+  min-height: 42px;
+  padding: 0.55rem 0.85rem;
 }
 
 .drawing-tool-btn.active {
@@ -853,7 +853,8 @@ body.dark-theme .svg-canvas-container {
 
 .drawing-size-control input {
   accent-color: var(--primary);
-  width: 110px;
+  min-height: 36px;
+  width: 130px;
 }
 
 .ion-drawing-canvas {
@@ -1195,11 +1196,20 @@ body.dark-theme .svg-canvas-container {
 }
 
 @media (max-width: 900px) {
+  body {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  .bg-glow-1,
+  .bg-glow-2 {
+    display: none;
+  }
+
   .app-header {
     align-items: flex-start;
     flex-direction: column;
-    gap: 1rem;
-    padding: 1rem;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem;
     position: relative;
   }
 
@@ -1219,6 +1229,12 @@ body.dark-theme .svg-canvas-container {
     width: 100%;
   }
 
+  .theme-toggle-btn {
+    border-radius: 12px;
+    height: 44px;
+    width: 44px;
+  }
+
   .student-info-bar {
     border-radius: 14px;
     flex: 1 1 100%;
@@ -1228,8 +1244,28 @@ body.dark-theme .svg-canvas-container {
   }
 
   .main-content {
-    gap: 1rem;
+    gap: 0.85rem;
     padding: 1rem;
+  }
+
+  .step-nav {
+    background: var(--bg-primary);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    gap: 0.75rem;
+    margin: 0 -1rem;
+    overflow-x: auto;
+    padding: 0.4rem 1rem 0.65rem;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .step-card {
+    border-radius: 12px;
+    flex: 0 0 132px;
+    min-height: 82px;
+    padding: 0.9rem 0.75rem;
+    scroll-snap-align: start;
   }
 
   .content-pane,
@@ -1259,7 +1295,22 @@ body.dark-theme .svg-canvas-container {
   }
 
   .simulator-panel {
+    box-shadow: var(--shadow-sm);
     position: static;
+  }
+
+  .sim-controls {
+    gap: 0.8rem;
+  }
+
+  .toggle-switch-btn,
+  .voltage-slider,
+  .student-mini-btn {
+    min-height: 44px;
+  }
+
+  .voltage-slider {
+    width: 100%;
   }
 
   .self-eval-item {
@@ -1278,17 +1329,24 @@ body.dark-theme .svg-canvas-container {
   }
 
   .rating-btn {
-    min-height: 40px;
-    padding: 0.45rem 0.4rem;
+    border-radius: 10px;
+    min-height: 46px;
+    padding: 0.55rem 0.45rem;
     white-space: normal;
   }
 
   .drawing-toolbar {
     align-items: stretch;
+    display: grid;
+    grid-template-columns: 1fr auto auto;
   }
 
   .drawing-size-control {
-    flex: 1 1 100%;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    grid-column: 1 / -1;
+    padding: 0.55rem 0.75rem;
   }
 
   .drawing-size-control input {
@@ -1296,10 +1354,36 @@ body.dark-theme .svg-canvas-container {
     width: auto;
   }
 
+  .drawing-color-group {
+    display: grid;
+    grid-template-columns: repeat(4, 44px);
+  }
+
+  .drawing-swatch {
+    height: 44px;
+    width: 44px;
+  }
+
+  .drawing-tool-btn {
+    border-radius: 10px;
+    min-height: 44px;
+  }
+
+  .ion-drawing-canvas {
+    height: clamp(260px, 58vw, 360px);
+    object-fit: fill;
+  }
+
   .step-navigation-footer {
     align-items: stretch;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    box-shadow: var(--shadow-sm);
     flex-direction: column;
     gap: 0.75rem;
+    margin: 0 -0.25rem;
+    padding: 0.75rem;
   }
 
   .step-navigation-footer .btn,
@@ -1307,36 +1391,74 @@ body.dark-theme .svg-canvas-container {
     justify-content: center;
     width: 100%;
   }
+
+  .report-writer-container {
+    gap: 1rem !important;
+  }
+
+  .report-form {
+    gap: 1rem;
+  }
 }
 
 @media (max-width: 640px) {
   .step-nav {
     margin: 0 -1rem;
-    padding: 0 1rem 0.5rem;
+    padding: 0.45rem 1rem 0.65rem;
     scroll-snap-type: x mandatory;
   }
 
   .step-card {
     border-radius: 12px;
-    flex-basis: 132px;
+    flex-basis: 112px;
+    gap: 0.3rem;
+    padding: 0.75rem 0.65rem;
     scroll-snap-align: start;
+  }
+
+  .step-number {
+    font-size: 0.68rem;
+    letter-spacing: 0;
   }
 
   .step-title {
     align-items: flex-start;
-    font-size: 0.9rem;
+    font-size: 0.82rem;
     gap: 0.35rem;
     line-height: 1.3;
   }
 
+  .step-status-icon {
+    font-size: 0.9rem;
+  }
+
   .checklist-item {
     gap: 0.75rem;
-    padding: 1rem;
+    min-height: 64px;
+    padding: 0.9rem;
+  }
+
+  .checkbox-custom {
+    height: 28px;
+    width: 28px;
+  }
+
+  .checklist-title {
+    font-size: 0.95rem;
+  }
+
+  .checklist-desc,
+  .step-objective {
+    font-size: 0.88rem;
   }
 
   .svg-canvas-container {
-    aspect-ratio: 1 / 0.82;
+    aspect-ratio: 1 / 0.88;
     padding: 0.5rem;
+  }
+
+  .simulator-panel {
+    gap: 0.9rem;
   }
 
   .sim-header,
@@ -1358,6 +1480,35 @@ body.dark-theme .svg-canvas-container {
   .form-input,
   .form-textarea {
     font-size: 16px;
+    min-height: 48px;
+    width: 100%;
+  }
+
+  .form-textarea {
+    min-height: 120px;
+  }
+
+  .drawing-tool {
+    border-radius: 10px;
+    margin: 0 -0.25rem;
+    padding: 0.55rem;
+  }
+
+  .drawing-toolbar {
+    gap: 0.45rem;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .drawing-color-group {
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .drawing-swatch {
+    width: 100%;
+  }
+
+  .drawing-tool-btn {
     width: 100%;
   }
 
